@@ -1,9 +1,9 @@
-import React, { useState, createContext, useEffect } from 'react';
+import React, { useState, createContext } from 'react';
 import styled from 'styled-components';
-import Sidebar from './Sidebar';
-import Main from './Main';
-import { v4 as uuid } from 'uuid';
-import Title from './Title';
+import Sidebar from './sidebar/Sidebar';
+import SettingsBar from './settingsBar/SettingsBar';
+import Main from './main/Main';
+import Title from './title/Title';
 import { RxZoomIn, RxZoomOut } from 'react-icons/rx';
 
 const AppWrapper = styled.div`
@@ -14,13 +14,13 @@ const AppWrapper = styled.div`
   justify-content: center;
   align-items: center;
   padding-top: 10rem;
-  padding-bottom: 20rem;
+  padding-bottom: 5rem;
 `;
 
 const PapeWrapper = styled.div`
   position: relative;
-  width: 420mm;
-  height: 594mm;
+  width: calc(210mm * 1.6);
+  height: calc(297mm * 1.6);
   display: flex;
   background-color: white;
   flex-direction: column;
@@ -48,6 +48,7 @@ const ZoomWrapper = styled.div`
 
 const ZoomSlider = styled.input`
   position: relative;
+  appearance: none;
   width: 200px;
   height: 10px;
   border-radius: 5px;
@@ -56,23 +57,39 @@ const ZoomSlider = styled.input`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgb(15, 17, 21);
+    border: 2px solid beige;
+    cursor: pointer;
+  }
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background-color: rgb(15, 17, 21);
+    border: 2px solid beige;
+    cursor: pointer;
+  }
 `;
 
 const initialLayout = [
-  { id: uuid(), CompName: Sidebar },
-  { id: uuid(), CompName: Main },
+  { id: 'sidebar', CompName: Sidebar },
+  { id: 'main', CompName: Main },
 ];
 
-const ThemeContext = createContext(null);
+export const ZoomContext = createContext(null);
 
 function Page() {
   const [layout, setLayout] = useState(initialLayout);
   const [selected, setSelected] = useState(null);
-  const [theme, setTheme] = useState({ bg: 'cream', paper: 'white' });
-  const [zoom, setZoom] = useState(2);
+  const [zoom, setZoom] = useState(1.6);
 
   const handleClick = (event, selection) => {
-    event.stopPropagation();
+    event.stopPropagation(); //stopping propagation because we want to remove selection when clicking out of section.
     setSelected(selection);
   };
 
@@ -80,8 +97,9 @@ function Page() {
     setZoom(event.target.value);
   };
   return (
-    <ThemeContext.Provider value={theme}>
+    <ZoomContext.Provider value={zoom}>
       <AppWrapper onClick={(e) => handleClick(e, null)}>
+        <SettingsBar setLayout={setLayout} />
         <PapeWrapper
           style={{ width: `${210 * zoom}mm`, height: `${297 * zoom}mm` }}
           onClick={(e) => handleClick(e, null)}
@@ -102,7 +120,7 @@ function Page() {
           <ZoomSlider
             type="range"
             min="0.6"
-            max="2"
+            max="1.6"
             value={zoom}
             step="0.01"
             onChange={handleSlider}
@@ -110,7 +128,7 @@ function Page() {
           <RxZoomIn style={{ margin: '5px' }} size={25} color="white" />
         </ZoomWrapper>
       </AppWrapper>
-    </ThemeContext.Provider>
+    </ZoomContext.Provider>
   );
 }
 

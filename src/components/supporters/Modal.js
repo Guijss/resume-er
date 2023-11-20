@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { motion } from 'framer-motion';
 
-const Backdrop = styled.div`
+const Backdrop = styled(motion.div)`
   position: fixed;
   left: 0;
   top: 0;
@@ -12,7 +13,7 @@ const Backdrop = styled.div`
   z-index: 99;
 `;
 
-const ModalWindow = styled.div`
+const ModalWindow = styled(motion.div)`
   position: absolute;
   background-color: rgb(15, 17, 21);
   z-index: 100;
@@ -22,7 +23,7 @@ const ModalWindow = styled.div`
   box-shadow: 0px 0px 16px 2px rgba(0, 0, 0, 0.5);
 `;
 
-const Modal = (props) => {
+const Modal = ({ children, setIsOpen }) => {
   const modalRef = useRef(null);
 
   const [modalRect, setModalRect] = useState({ width: 0, height: 0 });
@@ -36,26 +37,26 @@ const Modal = (props) => {
   const stopPropagation = (event) => {
     event.stopPropagation();
   };
+
   return (
     <>
       <ModalWindow
-        style={{
-          visibility: props.isOpen ? 'visible' : 'hidden',
-          opacity: props.isOpen ? '1' : '0',
-          right: -modalRect.width - 10,
-          top: -2,
-        }}
+        style={{ right: -modalRect.width - 3, top: -3 }}
         onClick={(e) => stopPropagation(e)}
         ref={modalRef}
+        initial={{ opacity: 0, scale: 0.5, translateX: 300 }}
+        animate={{ opacity: 1, scale: 1, translateX: 0 }}
+        exit={{ opacity: 0, scale: 0.5, translateX: 0 }}
       >
-        {props.children}
+        {children}
       </ModalWindow>
       <Backdrop
-        style={{
-          visibility: props.isOpen ? 'visible' : 'hidden',
-          opacity: props.isOpen ? '0.2' : '0',
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: 0.3,
         }}
-        onClick={() => props.setIsOpen(false)}
+        exit={{ opacity: 0 }}
+        onClick={() => setIsOpen(false)}
       />
     </>
   );
